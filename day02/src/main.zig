@@ -2,7 +2,7 @@ const std = @import("std");
 
 pub fn main() !void {
     const stdout = std.io.getStdOut();
-    var stdin = std.io.getStdIn();
+    const stdin = std.io.getStdIn();
     var bufr = std.io.bufferedReader(stdin.reader());
     var reader = bufr.reader();
 

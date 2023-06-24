@@ -1,0 +1,7 @@
+**/input.txt
+**/example.txt
+**/zig-cache/
+**/zig-out/
+**/build/
+**/build-*/
+**/docgen_tmp/

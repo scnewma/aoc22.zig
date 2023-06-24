@@ -3,31 +3,27 @@ const std = @import("std");
 pub fn main() !void {
     const stdout = std.io.getStdOut();
     var stdin = std.io.getStdIn();
-    var reader = stdin.reader();
+    var bufr = std.io.bufferedReader(stdin.reader());
+    var reader = bufr.reader();
 
     var p1score: u32 = 0;
     var p2score: u32 = 0;
 
-    while (true) {
-        var buffer: [8]u8 = undefined;
-        const line = try reader.readUntilDelimiterOrEof(&buffer, '\n');
-        if (line) |ln| {
-            const opponent = Move.decode(ln[0]) orelse unreachable;
-            const p1move = Move.decode(ln[2]) orelse unreachable;
-            const p2res = GameResult.decode(ln[2]) orelse unreachable;
+    var buffer: [8]u8 = undefined;
+    while (try reader.readUntilDelimiterOrEof(&buffer, '\n')) |line| {
+        const opponent = Move.decode(line[0]) orelse unreachable;
+        const p1move = Move.decode(line[2]) orelse unreachable;
+        const p2res = GameResult.decode(line[2]) orelse unreachable;
 
-            p1score += @intFromEnum(GameResult.decide(opponent, p1move));
-            p1score += @intFromEnum(p1move);
+        p1score += @intFromEnum(GameResult.decide(opponent, p1move));
+        p1score += @intFromEnum(p1move);
 
-            p2score += @intFromEnum(p2res);
-            p2score += @intFromEnum(switch (p2res) {
-                .draw => opponent,
-                .win => opponent.losesAgainst(),
-                .lose => opponent.losesAgainst(),
-            });
-        } else {
-            break;
-        }
+        p2score += @intFromEnum(p2res);
+        p2score += @intFromEnum(switch (p2res) {
+            .draw => opponent,
+            .win => opponent.losesAgainst(),
+            .lose => opponent.losesAgainst(),
+        });
     }
 
     try stdout.writer().print("Part 01: {}\n", .{p1score});

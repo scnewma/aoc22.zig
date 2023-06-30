@@ -37,3 +37,46 @@ pub fn TopN(comptime T: type, comptime N: u8) type {
         }
     };
 }
+
+pub const RangeDirection = enum { forward, reverse };
+
+pub const RangeIterator = struct {
+    start: usize,
+    end: usize, // exclusive
+    direction: RangeDirection = .forward,
+
+    pub fn next(self: *RangeIterator) ?usize {
+        return switch (self.direction) {
+            .forward => self.step_next(),
+            .reverse => self.step_next_back(),
+        };
+    }
+
+    pub fn next_back(self: *RangeIterator) ?usize {
+        return switch (self.direction) {
+            .forward => self.step_next_back(),
+            .reverse => self.step_next(),
+        };
+    }
+
+    fn step_next(self: *RangeIterator) ?usize {
+        if (self.start >= self.end) {
+            return null;
+        }
+        const n = self.start;
+        self.start += 1;
+        return n;
+    }
+
+    fn step_next_back(self: *RangeIterator) ?usize {
+        if (self.start >= self.end) {
+            return null;
+        }
+        self.end -= 1;
+        return self.end;
+    }
+
+    pub fn clone(self: RangeIterator) RangeIterator {
+        return .{ .start = self.start, .end = self.end, .direction = self.direction };
+    }
+};

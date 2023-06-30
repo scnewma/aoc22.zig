@@ -62,6 +62,7 @@ const Move = enum(u8) {
         };
     }
 };
+
 const GameResult = enum(u8) {
     win = 6,
     lose = 0,

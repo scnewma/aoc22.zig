@@ -11,6 +11,8 @@ pub fn build(b: *std.Build) void {
         .source_file = .{ .path = "src/lib.zig" },
     });
 
+    const test_step = b.step("test", "Run all tests.");
+
     var day_counter: usize = 1;
     while (day_counter <= DAY_SOLVED) : (day_counter += 1) {
         const name = b.fmt("day{:0>2}", .{day_counter});
@@ -35,9 +37,11 @@ pub fn build(b: *std.Build) void {
             .target = target,
             .optimize = optimize,
         });
+        unit_tests.addModule("aoclib", lib_module);
         const run_unit_tests = b.addRunArtifact(unit_tests);
 
-        const test_step = b.step(b.fmt("test_{s}", .{name}), b.fmt("Test {s}", .{name}));
+        const day_test_step = b.step(b.fmt("test_{s}", .{name}), b.fmt("Test {s}", .{name}));
+        day_test_step.dependOn(&run_unit_tests.step);
         test_step.dependOn(&run_unit_tests.step);
     }
 }

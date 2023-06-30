@@ -1,4 +1,5 @@
 const std = @import("std");
+const lib = @import("aoclib");
 const io = std.io;
 const math = std.math;
 const mem = std.mem;
@@ -12,50 +13,7 @@ const Tree = struct {
 
 const Grove = ArrayList(ArrayList(Tree));
 
-const Direction = enum { forward, reverse };
-
-const RangeIterator = struct {
-    start: usize,
-    end: usize, // exclusive
-    direction: Direction,
-
-    pub fn next(self: *RangeIterator) ?usize {
-        return switch (self.direction) {
-            .forward => self.step_next(),
-            .reverse => self.step_next_back(),
-        };
-    }
-
-    pub fn next_back(self: *RangeIterator) ?usize {
-        return switch (self.direction) {
-            .forward => self.step_next_back(),
-            .reverse => self.step_next(),
-        };
-    }
-
-    fn step_next(self: *RangeIterator) ?usize {
-        if (self.start >= self.end) {
-            return null;
-        }
-        const n = self.start;
-        self.start += 1;
-        return n;
-    }
-
-    fn step_next_back(self: *RangeIterator) ?usize {
-        if (self.start >= self.end) {
-            return null;
-        }
-        self.end -= 1;
-        return self.end;
-    }
-
-    pub fn clone(self: RangeIterator) RangeIterator {
-        return .{ .start = self.start, .end = self.end, .direction = self.direction };
-    }
-};
-
-fn range(comptime direction: Direction, start: usize, end: usize) RangeIterator {
+fn range(comptime direction: lib.RangeDirection, start: usize, end: usize) lib.RangeIterator {
     if (start > end) {
         @panic("invalid range");
     }
@@ -130,10 +88,10 @@ fn part01(grove: Grove) !usize {
 
                 var max_h = tree.height;
                 if (r > 0 and r < grove_h - 1) {
-                    max_h = max(max_h, memo.items[add(r, dr)].items[c].height);
+                    max_h = @max(max_h, memo.items[add(r, dr)].items[c].height);
                 }
                 if (c > 0 and c < grove_w - 1) {
-                    max_h = max(max_h, memo.items[r].items[add(c, dc)].height);
+                    max_h = @max(max_h, memo.items[r].items[add(c, dc)].height);
                 }
                 memo.items[r].items[c].height = max_h;
             }
@@ -168,7 +126,7 @@ fn part02(grove: Grove) !usize {
             const bottom = calcScenicScore(grove, r, c, @constCast(&range(.forward, r + 1, grove_h)), .row);
 
             const score = left * right * top * bottom;
-            max_scenic_score = max(max_scenic_score, score);
+            max_scenic_score = @max(max_scenic_score, score);
         }
     }
 
@@ -177,7 +135,7 @@ fn part02(grove: Grove) !usize {
 
 const RowOrCol = enum { row, col };
 
-fn calcScenicScore(grove: Grove, r: usize, c: usize, check_range: *RangeIterator, comptime range_type: RowOrCol) usize {
+fn calcScenicScore(grove: Grove, r: usize, c: usize, check_range: *lib.RangeIterator, comptime range_type: RowOrCol) usize {
     const tree = grove.items[r].items[c];
     var trees_visible: usize = 0;
     while (check_range.next()) |x| {
@@ -203,10 +161,6 @@ fn add(x: usize, dx: isize) usize {
 test "add" {
     try std.testing.expectEqual(add(1, 1), 2);
     try std.testing.expectEqual(add(1, -1), 0);
-}
-
-fn max(x: usize, y: usize) usize {
-    return if (x > y) x else y;
 }
 
 fn print_grove(grove: Grove, w_visibility: bool) void {

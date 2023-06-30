@@ -104,17 +104,13 @@ fn solve(allocator: Allocator, input: []const u8) !Solution {
     iter = dir_sizes.valueIterator();
     while (iter.next()) |entry| {
         if (entry.* > free_space_needed) {
-            min = intMin(min, entry.*);
+            min = @min(min, entry.*);
         }
     }
     return Solution{
         .part01 = sum,
         .part02 = min,
     };
-}
-
-fn intMin(a: usize, b: usize) usize {
-    return if (a < b) a else b;
 }
 
 const EXAMPLE =

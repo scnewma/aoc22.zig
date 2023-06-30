@@ -1,34 +1,8 @@
 const std = @import("std");
 
-pub fn main() !void {
-    var stdin = std.io.getStdIn();
-    var stdout = std.io.getStdOut();
-    var bufr = std.io.bufferedReader(stdin.reader());
-    var reader = bufr.reader();
-
-    var elf_calories: u32 = 0;
-    var top3 = TopN(u32, 3).new();
-
-    var buffer: [8]u8 = undefined;
-    while (try reader.readUntilDelimiterOrEof(&buffer, '\n')) |line| {
-        if (line.len == 0) {
-            top3.insert(elf_calories);
-            elf_calories = 0;
-            continue;
-        }
-        var calories = try std.fmt.parseInt(u32, line, 10);
-        elf_calories += calories;
-    }
-    // ensure we count the last elf
-    top3.insert(elf_calories);
-
-    try stdout.writer().print("Part 01: {}\n", .{top3.max()});
-    try stdout.writer().print("Part 02: {}\n", .{top3.sum()});
-}
-
 // n could theoretically be anything, but TopN doesn't actually implement the
 // heap algorithm so you will want to keep the number of elements low
-fn TopN(comptime T: type, comptime N: u8) type {
+pub fn TopN(comptime T: type, comptime N: u8) type {
     return struct {
         elems: [N]T,
 
